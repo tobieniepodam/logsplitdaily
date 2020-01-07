@@ -1,0 +1,20 @@
+#!/bin/bash
+
+for f in "$@"; do
+    test ! -f "$1" && echo "File '$f' doens't exist" > /dev/stderr && continue
+
+    logfile=${f%.*}
+
+    date=''
+    while read l; do
+        l_date=$(echo $l | awk '{print $1 " " $2}')
+        if [ "$l_date" != "$date" ]; then
+            echo $l_date
+            logfile_date=$(date -d "$l_date" "+%y%m%d")
+            date=$l_date
+        fi
+        echo $l >> $logfile.$logfile_date
+    done < $1
+
+    rm $f
+done
